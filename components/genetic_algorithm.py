@@ -1,9 +1,16 @@
+from lib2to3.pytree import Base
 import random
+
+from components.selection import BaseSelector
 
 
 class GeneticAlgorithmTSP:
-    def __init__(self, population_size: int) -> None:
+    def __init__(self, population_size: int, n_iterations: int,
+                 selector: BaseSelector) -> None:
+
         self.population_size = population_size
+        self.n_iterations = n_iterations
+        self.selector = selector
 
     def create_base_population(self, city_size: int) -> dict:
         base_population = {}
@@ -16,7 +23,7 @@ class GeneticAlgorithmTSP:
 
         return base_population
 
-    def evaluate(self, population, cost_data):
+    def evaluate(self, population: dict, cost_data: list) -> dict:
         population_score = {}
 
         for index, values in population.items():
@@ -44,11 +51,14 @@ class GeneticAlgorithmTSP:
                     # Calculate the full cost for given individual
                     # Takes the cost of each route from the cost matrix
                     # Not the prettiest syntax, however quite fast solution
-                    cost = sum([cost_data[coordinates[0]][coordinates[1]]
+                    score = sum([cost_data[coordinates[0]][coordinates[1]]
                                 if coordinates[0] > coordinates[1]
                                 else cost_data[coordinates[1]][coordinates[0]]
                                 for coordinates in coordinates_list])
 
-                    population_score[index] = cost
+                    population_score[index] = score
 
         return population_score
+
+        def learn(self):
+            pass
