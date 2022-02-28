@@ -1,4 +1,3 @@
-from lib2to3.pytree import Base
 import random
 
 from components.selection import BaseSelector
