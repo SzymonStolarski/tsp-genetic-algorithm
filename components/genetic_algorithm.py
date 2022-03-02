@@ -1,15 +1,17 @@
 import random
 
 from components.selection import BaseSelector
+from components.crossover import BaseCrossover
 
 
 class GeneticAlgorithmTSP:
     def __init__(self, population_size: int, n_iterations: int,
-                 selector: BaseSelector) -> None:
+                 selector: BaseSelector, crossover: BaseCrossover) -> None:
 
         self.population_size = population_size
         self.n_iterations = n_iterations
         self.selector = selector
+        self.crossover = crossover
 
     def create_base_population(self, city_size: int) -> dict:
         base_population = {}
