@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from audioop import cross
 import random
 
 import numpy as np
@@ -13,8 +14,8 @@ class BaseCrossover(ABC):
 
 class PMXCrossover(BaseCrossover):
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, crossover_probability: float) -> None:
+        self.crossover_probability = crossover_probability
 
     def crossover(self, population: dict) -> dict:
         population_len = len(population)
@@ -31,25 +32,34 @@ class PMXCrossover(BaseCrossover):
 
             parent_1 = selected_pair[0]
             parent_2 = selected_pair[1]
-            start_point, end_point = self.__crossover_points_generator(
-                                     len(parent_1))
-            core_parent_1 = parent_1[start_point:end_point]
-            core_parent_2 = parent_2[start_point:end_point]
-            mapping_table_1 = []
-            # Creation add mappings to the mapping table
-            # Also reverse the order for the second mapping table
-            for index in range(len(core_parent_1)):
-                mapping_table_1.append([core_parent_2[index],
-                                        core_parent_1[index]])
-            mapping_table_2 = [[el[1], el[0]] for el in mapping_table_1]
 
-            child_1 = self.__pmx_algorithm(parent_1, start_point, end_point,
-                                           core_parent_2, mapping_table_1)
-            child_2 = self.__pmx_algorithm(parent_2, start_point, end_point,
-                                           core_parent_1, mapping_table_2)
+            random_number = random.random()
+            if random_number <= self.crossover_probability:
+                start_point, end_point = self.__crossover_points_generator(
+                                        len(parent_1))
+                core_parent_1 = parent_1[start_point:end_point]
+                core_parent_2 = parent_2[start_point:end_point]
+                mapping_table_1 = []
+                # Creation add mappings to the mapping table
+                # Also reverse the order for the second mapping table
+                for index in range(len(core_parent_1)):
+                    mapping_table_1.append([core_parent_2[index],
+                                            core_parent_1[index]])
+                mapping_table_2 = [[el[1], el[0]] for el in mapping_table_1]
 
-            new_population[new_index] = child_1
-            new_population[new_index+1] = child_2
+                child_1 = self.__pmx_algorithm(parent_1, start_point,
+                                               end_point, core_parent_2,
+                                               mapping_table_1)
+                child_2 = self.__pmx_algorithm(parent_2, start_point,
+                                               end_point, core_parent_1,
+                                               mapping_table_2)
+
+                new_population[new_index] = child_1
+                new_population[new_index+1] = child_2
+            else:
+                new_population[new_index] = parent_1
+                new_population[new_index+1] = parent_2
+
             new_index += 2
 
         return new_population
