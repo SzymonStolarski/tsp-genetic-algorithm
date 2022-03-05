@@ -8,7 +8,8 @@ from components.mutation import BaseMutator
 class GeneticAlgorithmTSP:
     def __init__(self, population_size: int, n_iterations: int,
                  selector: BaseSelector, crossover: BaseCrossover,
-                 mutator: BaseMutator, maximize: bool = False) -> None:
+                 mutator: BaseMutator, maximize: bool = False,
+                 verbose: bool = True) -> None:
 
         self.population_size = population_size
         self.n_iterations = n_iterations
@@ -16,6 +17,7 @@ class GeneticAlgorithmTSP:
         self.crossover = crossover
         self.mutator = mutator
         self.maximize = maximize
+        self.verbose = verbose
 
     @property
     def results(self):
@@ -53,8 +55,9 @@ class GeneticAlgorithmTSP:
             self.__paths[iteration] = population[max(evaluated_population,
                                                      key=evaluated_population.get)
                                                  ]
-        print(f'Iteration: {iteration}. Best result: {self.__results[iteration]}')
-
+        if self.verbose:
+            print('Starting algorithm...')
+            print(f'Iteration: {iteration}. Best result: {self.__results[iteration]}')
         while not iteration == self.n_iterations:
             # Increment iteration here because iteration 0 was base population
             iteration += 1
@@ -80,8 +83,8 @@ class GeneticAlgorithmTSP:
                 self.__paths[iteration] = population[max(evaluated_population,
                                                         key=evaluated_population.get)
                                                      ]
-
-            print(f'Iteration: {iteration}. Best result: {self.__results[iteration]}')
+            if self.verbose:
+                print(f'Iteration: {iteration}. Best result: {self.__results[iteration]}')
 
         if not self.maximize:
             self.__best_result = min(list(self.__results.values()))
@@ -91,6 +94,8 @@ class GeneticAlgorithmTSP:
             self.__best_result = min(list(self.__results.values()))
             self.__best_path = self.__paths[min(self.__results,
                                                 key=self.__results.get)]
+        if self.verbose:
+            print('Algorithm finished.')
 
         return self
 
