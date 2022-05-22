@@ -9,7 +9,8 @@ class GeneticAlgorithmTSP:
     def __init__(self, population_size: int, n_iterations: int,
                  selector: BaseSelector, crossover: BaseCrossover,
                  mutator: BaseMutator, maximize: bool = False,
-                 verbose: bool = True) -> None:
+                 verbose: bool = True, atomic_bomb: bool = True,
+                 atomic_bomb_iterations: int = 1500) -> None:
 
         self.population_size = population_size
         self.n_iterations = n_iterations
@@ -18,6 +19,8 @@ class GeneticAlgorithmTSP:
         self.mutator = mutator
         self.maximize = maximize
         self.verbose = verbose
+        self.atomic_bomb = atomic_bomb
+        self.atomic_bomb_iterations = atomic_bomb_iterations
 
     @property
     def results(self):
@@ -83,8 +86,14 @@ class GeneticAlgorithmTSP:
                 self.__paths[iteration] = population[max(evaluated_population,
                                                         key=evaluated_population.get)
                                                      ]
-            if self.verbose:
+            if self.verbose and iteration % 100 == 0:
                 print(f'Iteration: {iteration}. Best result: {self.__results[iteration]}')
+
+            if self.atomic_bomb and iteration > self.atomic_bomb_iterations and (
+                self.__results[iteration] == self.__results[iteration-self.atomic_bomb_iterations]):
+
+                population = self._create_base_population(len(cost_matrix))
+
 
         if not self.maximize:
             self.__best_result = min(list(self.__results.values()))
