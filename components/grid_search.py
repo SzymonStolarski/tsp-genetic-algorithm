@@ -1,6 +1,6 @@
 import itertools
 
-from components.genetic_algorithm import GeneticAlgorithmTSP
+from components.tsp_algorithms.genetic_algorithm import GeneticAlgorithmTSP
 from components.crossover import BaseCrossover
 from components.mutation import BaseMutator
 from components.selection import BaseSelector
