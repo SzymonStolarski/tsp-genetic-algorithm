@@ -9,7 +9,7 @@ class GeneticAlgorithmTSP:
     def __init__(self, population_size: int, n_iterations: int,
                  selector: BaseSelector, crossover: BaseCrossover,
                  mutator: BaseMutator, maximize: bool = False,
-                 verbose: bool = True) -> None:
+                 verbose: bool = True, atomic_bomb: int = None) -> None:
 
         self.population_size = population_size
         self.n_iterations = n_iterations
@@ -18,6 +18,7 @@ class GeneticAlgorithmTSP:
         self.mutator = mutator
         self.maximize = maximize
         self.verbose = verbose
+        self.atomic_bomb = atomic_bomb
 
     @property
     def results(self):
@@ -46,18 +47,20 @@ class GeneticAlgorithmTSP:
         evaluated_population = self._evaluate(population, cost_matrix)
 
         if not self.maximize:
-            self.__results[iteration] = min(list(evaluated_population.values()))
-            self.__paths[iteration] = population[min(evaluated_population,
-                                                     key=evaluated_population.get)
-                                                 ]
+            self.__results[iteration] = min(
+                list(evaluated_population.values()))
+            self.__paths[iteration] = population[
+                min(evaluated_population, key=evaluated_population.get)]
         else:
-            self.__results[iteration] = max(list(evaluated_population.values()))
-            self.__paths[iteration] = population[max(evaluated_population,
-                                                     key=evaluated_population.get)
-                                                 ]
+            self.__results[iteration] = max(
+                list(evaluated_population.values()))
+            self.__paths[iteration] = population[
+                max(evaluated_population, key=evaluated_population.get)]
         if self.verbose:
             print('Starting algorithm...')
-            print(f'Iteration: {iteration}. Best result: {self.__results[iteration]}')
+            print(f'Iteration: {iteration}. \
+                  Best result: {self.__results[iteration]}')
+
         while not iteration == self.n_iterations:
             # Increment iteration here because iteration 0 was base population
             iteration += 1
@@ -74,17 +77,26 @@ class GeneticAlgorithmTSP:
             evaluated_population = self._evaluate(population, cost_matrix)
 
             if not self.maximize:
-                self.__results[iteration] = min(list(evaluated_population.values()))
-                self.__paths[iteration] = population[min(evaluated_population,
-                                                        key=evaluated_population.get)
-                                                     ]
+                self.__results[iteration] = min(
+                    list(evaluated_population.values()))
+                self.__paths[iteration] = population[
+                    min(evaluated_population, key=evaluated_population.get)]
             else:
-                self.__results[iteration] = max(list(evaluated_population.values()))
-                self.__paths[iteration] = population[max(evaluated_population,
-                                                        key=evaluated_population.get)
-                                                     ]
-            if self.verbose:
-                print(f'Iteration: {iteration}. Best result: {self.__results[iteration]}')
+                self.__results[iteration] = max(
+                    list(evaluated_population.values()))
+                self.__paths[iteration] = population[
+                    max(evaluated_population, key=evaluated_population.get)]
+            if self.verbose and iteration % 100 == 0:
+                print(f'Iteration: {iteration}. \
+                      Best result: {self.__results[iteration]}')
+
+            # Atomic bomb component - kill population after stagnation
+            if (self.atomic_bomb is not None
+                and iteration > self.atomic_bomb
+                    and (self.__results[iteration] == self.__results[
+                        iteration - self.atomic_bomb])):
+
+                population = self._create_base_population(len(cost_matrix))
 
         if not self.maximize:
             self.__best_result = min(list(self.__results.values()))
@@ -140,7 +152,8 @@ class GeneticAlgorithmTSP:
                     # Not the prettiest syntax, however quite fast solution
                     score = sum([cost_matrix[coordinates[0]][coordinates[1]]
                                 if coordinates[0] > coordinates[1]
-                                else cost_matrix[coordinates[1]][coordinates[0]]
+                                else cost_matrix[
+                                    coordinates[1]][coordinates[0]]
                                 for coordinates in coordinates_list])
 
                     population_score[index] = score
