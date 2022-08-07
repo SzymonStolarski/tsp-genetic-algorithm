@@ -1,4 +1,4 @@
-import math
+from math import exp
 import random
 
 from components.evaluate.tsp_evaluate import evaluate
@@ -17,16 +17,29 @@ class SimulatedAnnealing(BaseTspAlgorithm):
     def learn(self, cost_matrix: list):
 
         route = self.__create_route(len(cost_matrix))
-        cost_prev = evaluate(route, cost_matrix)
+        cost_prev = evaluate(route, cost_matrix)[1]
 
         temp = self.temp_start
+        iteration = 1
+
+        self._results = {}
+
+        self._results[iteration] = cost_prev
+        self._best_result = min(list(self._results.values()))
+
         while temp >= self.temp_end:
+            iteration += 1
             route = self.__create_route(len(cost_matrix))
-            cost_new = evaluate(route, cost_matrix)
+            cost_new = evaluate(route, cost_matrix)[1]
             difference = cost_new - cost_prev
 
-            if difference < 0 or math.exp(-difference/temp) > random():
+            if difference < 0 or exp(-difference/temp) > random.random():
                 cost_prev = cost_new
+                self._results[iteration] = cost_prev
+            else:
+                self._results[iteration] = cost_new
+
+            self._best_result = min(list(self._results.values()))
 
             temp = temp * self.cooling_factor
 
