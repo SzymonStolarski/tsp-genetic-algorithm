@@ -1,3 +1,5 @@
+import random
+
 from components.evaluate.tsp_evaluate import evaluate
 from components.ga_components.selection import BaseSelector
 from components.ga_components.crossover import BaseCrossover
@@ -9,7 +11,7 @@ class GeneticAlgorithmTsp(BaseTspAlgorithm):
     def __init__(self, population_size: int, n_iterations: int,
                  selector: BaseSelector, crossover: BaseCrossover,
                  mutator: BaseMutator, maximize: bool = False,
-                 verbose: bool = True, atomic_bomb: int = None) -> None:
+                 verbose: bool = True, atomic_bomb: int = None):
 
         self.population_size = population_size
         self.n_iterations = n_iterations
@@ -27,7 +29,7 @@ class GeneticAlgorithmTsp(BaseTspAlgorithm):
         self._best_path = []
 
         iteration = 0
-        population = self._create_base_population(len(cost_matrix))
+        population = self.__create_base_population(len(cost_matrix))
         evaluated_population = evaluate(population, cost_matrix)
 
         self._results[iteration] = min(
@@ -70,7 +72,7 @@ class GeneticAlgorithmTsp(BaseTspAlgorithm):
                     and (self._results[iteration] == self._results[
                         iteration - self.atomic_bomb])):
 
-                population = self._create_base_population(len(cost_matrix))
+                population = self.__create_base_population(len(cost_matrix))
 
             self._best_result = min(list(self._results.values()))
             self._best_path = self._paths[min(self._results,
@@ -80,3 +82,14 @@ class GeneticAlgorithmTsp(BaseTspAlgorithm):
             print('Algorithm finished.')
 
         return self
+
+    def __create_base_population(self, city_size: int) -> dict:
+        base_population = {}
+
+        for i in range(self.population_size):
+            random_individual = list(range(city_size))
+            random.shuffle(random_individual)
+
+            base_population[i] = random_individual
+
+        return base_population
